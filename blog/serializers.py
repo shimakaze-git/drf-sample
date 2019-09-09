@@ -11,7 +11,7 @@ class MemberSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        modle = Member
+        model = Member
         # db_table = ''
         managed = True
         # verbose_name = 'ModelName'
@@ -28,7 +28,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     status_name = serializers.SerializerMethodField()
 
     class Meta:
-        modle = Article
+        model = Article
         # db_table = ''
         managed = True
         # verbose_name = 'ModelName'
