@@ -1,4 +1,4 @@
 # drf-sample
 django restframework sample apps
 
-TEST
+TEST2
