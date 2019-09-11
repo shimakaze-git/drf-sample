@@ -3,7 +3,7 @@
 from django.views.generic import TemplateView
 
 # from customer.forms import CustomerCreateForm
-# from ticket.forms import TicketCreateForm
+from ticket.forms import TicketCreateForm
 # from ticket.domain_services import TicketCreateService
 # from helpbase.exceptions import InvalidInputsException
 
@@ -13,7 +13,7 @@ class TicketCreateView(TemplateView):
     template_name = 'create.html'
 
     # def get(self, request, *args, **kwargs):
-    #     ticket_create_form = TicketCreateForm()
+        # ticket_create_form = TicketCreateForm()
     #     customer_create_form = CustomerCreateForm()
 
     #     return render(
