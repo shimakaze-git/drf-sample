@@ -13,6 +13,15 @@ class QuestionRepository(PollsRepository):
     def get_all(self):
         return self.__db_repo.get_all()
 
+    def get_selected_choice(self, choice_id: int):
+        return self.__db_repo.get_selected_choice(choice_id)
+
+    def add_vote(self, choice_id: int, vote_count=1):
+        return self.__db_repo.add_vote(
+            choice_id,
+            vote_count
+        )
+
 
 class QuestionDBRepository(QuestionRepository):
     def __init__(self):
@@ -35,3 +44,39 @@ class QuestionDBRepository(QuestionRepository):
 
     def get_all(self):
         return self.question_orm.objects.all()
+
+    def get_selected_choice(self, question: Question, choice_id: int):
+        assert isinstance(question, int)
+        assert isinstance(choice_id, int)
+
+        selected_choice = question.choice_set.filter(
+            pk=choice_id
+        )
+        return selected_choice
+
+    def add_vote(
+        self, question_id: int, choice_id: int, vote_count=1
+    ):
+        """
+        投票処理を行う.
+
+        実際に投稿処理が行われ、投票数がカウントされる/
+
+        Args:
+            question_id (int): questionのpk.
+            choice_id (int): 選択項目のpk.
+            vote_count (int, optional): 投票数. Defaults to 1.
+        """
+        # 投票内容を取り出す
+        question = self.filter_by_question_id(question_id)
+
+        # choiceの選択後
+        selected_choice = self.get_selected_choice(
+            question,
+            choice_id
+        )
+
+        if not selected_choice:
+            selected_choice.votes += vote_count
+            selected_choice.save()
+        return question, selected_choice

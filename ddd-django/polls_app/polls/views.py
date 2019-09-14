@@ -104,14 +104,25 @@ def results(request, question_id):
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
+    # print(dir(question.choice_set))
+
+    # print(question.choice_set.values())
+    # print(question.choice_set.values_list())
 
     try:
-        print("question.choice_set", question.choice_set)
-        print("request.POST['choice']", request.POST["choice"])
+        # print("question.choice_set", question.choice_set)
+        # print("request.POST['choice']", request.POST["choice"])
         # print(dir(question))
 
         selected_choice = question.choice_set.get(pk=request.POST["choice"])
         print("selected_choice", selected_choice)
+        print(type(selected_choice))
+
+        selected_choice = question.choice_set.filter(pk=20)
+        print("selected_choice []", selected_choice)
+
+        print(not selected_choice)
+
     except (KeyError, Choice.DoesNotExist):
         # request.POST['choice'] は KeyError を送出
         return render(
