@@ -1,5 +1,8 @@
+from django.utils import timezone
+
 from .repositories.choices import ChoiceRepository, ChoiceDBRepository
-from .repositories.questions import QuestionRepository, QuestionDBRepository
+# from .repositories.questions import QuestionRepository, QuestionDBRepository
+from .repositories.questions import QuestionDBRepository
 
 
 class ChoiceAggregateService:
@@ -19,11 +22,49 @@ class ChoiceAggregateService:
         return max - min
 
 
+GET_COUNT = 5
+
+
+class LatestQuestionService:
+    def __init__(self):
+        self._question_repo = QuestionDBRepository()
+
+    def get_latest_questions(self, pub_date_flag=True) -> tuple:
+        """
+        最新の投票内容を取得する.
+
+        Args:
+            pub_date_flag (bool, optional):
+                Flaseの場合は全ての投票内容を取り出す. Defaults to True.
+
+        Returns:
+            tuple: latest_questions, output
+        """
+        get_count = GET_COUNT
+        timezone_now = timezone.now()
+
+        if pub_date_flag:
+            # 投票内容を取り出す
+            latest_questions = self._question_repo.get_latest_questions(
+                timezone_now, get_count
+            )
+        else:
+            latest_questions = self._question_repo.get_all()
+
+        # , 区切りの投票タイトルの文字列
+        output = ", ".join(
+            [q.question_text for q in latest_questions]
+        )
+
+        return latest_questions, output
+
+
 class VoteService:
     def __init__(self):
-        self._question_repo = QuestionRepository(
-            QuestionDBRepository()
-        )
+        # self._question_repo = QuestionRepository(
+        #     QuestionDBRepository()
+        # )
+        self._question_repo = QuestionDBRepository()
 
     def execute(self, question_id: int, choice_id: int):
         question, selected_choice = self.add_vote(question_id, choice_id)
@@ -31,7 +72,7 @@ class VoteService:
     def add_vote(self, question_id: int, choice_id: int):
         """ 投票を行う. """
 
-        return self._question_repo.add_vote(
+        return self._question_repo.create_vote(
             question_id, choice_id
         )
         # "error_message": "You didn't select a choice."

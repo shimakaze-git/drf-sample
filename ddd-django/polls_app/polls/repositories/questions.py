@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from polls_app.polls.repositories import PollsRepository
 
 from polls_app.polls.models import Question
@@ -16,7 +18,7 @@ class QuestionRepository(PollsRepository):
     def get_selected_choice(self, choice_id: int):
         return self.__db_repo.get_selected_choice(choice_id)
 
-    def add_vote(self, choice_id: int, vote_count=1):
+    def create_vote(self, choice_id: int, vote_count=1):
         return self.__db_repo.add_vote(
             choice_id,
             vote_count
@@ -45,6 +47,20 @@ class QuestionDBRepository(QuestionRepository):
     def get_all(self):
         return self.question_orm.objects.all()
 
+    def get_latest_questions(
+        self, timezone_now: datetime, count=5
+    ):
+        """
+        公開日が現在時刻より下回る最新の投票を取り出す.
+
+        Args:
+            timezone_now (datetime): 現在時刻.
+            count (int, optional): 取り出す数. Defaults to 5.
+        """
+        return self.question_orm.objects.filter(
+            pub_date__lte=timezone_now
+        ).order_by("-pub_date")[:count]
+
     def get_selected_choice(self, question: Question, choice_id: int):
         assert isinstance(question, int)
         assert isinstance(choice_id, int)
@@ -54,7 +70,7 @@ class QuestionDBRepository(QuestionRepository):
         )
         return selected_choice
 
-    def add_vote(
+    def create_vote(
         self, question_id: int, choice_id: int, vote_count=1
     ):
         """
