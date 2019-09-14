@@ -1,6 +1,7 @@
 import inject
 
-from services import UserService
+# from services import UserService
+from services import UserServiceTwo
 
 # from repositories import UserRepository, UserRedisRepository
 from repositories import UserRepository, UserMemoryRepository
@@ -14,7 +15,8 @@ def inject_config(binder):
 if __name__ == "__main__":
     inject.configure(inject_config)
 
-    user_service = UserService()
+    # user_service = UserService()
+    user_service = UserServiceTwo()
 
     name = 'foo'
     created_user = user_service.create_user(name)

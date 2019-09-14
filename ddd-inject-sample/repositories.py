@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from entities import User
 
 
-class UserRepository:
+class AbstractUserRepository:
     """Base class of User Repository.
 
     Raises:
@@ -20,7 +20,7 @@ class UserRepository:
         raise NotImplementedError
 
 
-class UserRedisRepository(UserRepository):
+class UserRedisRepository(AbstractUserRepository):
     """User Repository on Redis."""
 
     def store(self, user):
@@ -32,7 +32,7 @@ class UserRedisRepository(UserRepository):
         pass
 
 
-class UserMemoryRepository(UserRepository):
+class UserMemoryRepository(AbstractUserRepository):
     """User Repository on memory.
 
     Args:
