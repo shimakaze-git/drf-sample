@@ -12,6 +12,11 @@ from .models import Choice, Question
 from django.db.models import Avg, Max, Min
 
 
+# from rest_framework.views import APIView
+from .use_cases import ShowVoteResultsUsecase
+
+from .factories import build_show_vote_results_use_case
+
 # class QuestionList(generic.ListView):
 #     model = Question
 
@@ -41,6 +46,7 @@ class DetailView(generic.DetailView):
         """
         Excludes any questions that aren't published yet.
         """
+        print(timezone.now())
         return Question.objects.filter(pub_date__lte=timezone.now())
 
 
@@ -52,10 +58,16 @@ class ResultsView(generic.DetailView):
 
 
 def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    latest_question_list = Question.objects.filter(
+        pub_date__lte=timezone.now()
+    ).order_by('-pub_date')[:5]
+
     output = ', '.join([q.question_text for q in latest_question_list])
+    print('output', output)
 
     template = loader.get_template('polls/index.html')
+    print('template', template)
+
     context = {
         'latest_question_list': latest_question_list,
     }
@@ -67,6 +79,10 @@ def index(request):
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
+
+    print('question', question)
+    print('question_id', question_id)
+
     # try:
     #     question = Question.objects.get(pk=question_id)
     # except Question.DoesNotExist:
@@ -77,31 +93,33 @@ def detail(request, question_id):
 
 
 def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-
-    max = Choice.objects.aggregate(Max('votes'))['votes__max']
-    min = Choice.objects.aggregate(Min('votes'))['votes__min']
-    avg = Choice.objects.aggregate(Avg('votes'))['votes__avg']
-
-    return render(
-        request,
-        'polls/results.html',
-        {
-            'question': question,
-            'max': max,
-            'min': min,
-            'avg': avg
-        }
-    )
+    raise Http404
+    use_case = build_show_vote_results_use_case()
+    try:
+        results = use_case.execute(question_id)
+    except Exception as e:
+        # print('e', e)
+        raise Http404
+    else:
+        return render(
+            request,
+            'polls/results.html',
+            results
+        )
 
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
 
     try:
+        print('question.choice_set', question.choice_set)
+        print("request.POST['choice']", request.POST['choice'])
+        # print(dir(question))
+
         selected_choice = question.choice_set.get(
             pk=request.POST['choice']
         )
+        print('selected_choice', selected_choice)
     except (KeyError, Choice.DoesNotExist):
         # request.POST['choice'] は KeyError を送出
         return render(request, 'polls/detail.html', {
@@ -109,9 +127,35 @@ def vote(request, question_id):
             'error_message': "You didn't select a choice.",
         })
     else:
-        selected_choice.votes += 1
-        selected_choice.save()
+        # selected_choice.votes += 1
+        # selected_choice.save()
 
         return HttpResponseRedirect(
             reverse('polls:results', args=(question.id,))
         )
+
+
+# class CreateUserView(APIView):
+#     def post(self, request):
+#         # validate input
+#         user_dto, errors = CreateUserSerializer().load(request.data)
+#         if errors:
+#             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+#         # call usecase
+#         use_case = build_create_user_use_case()
+#         try:
+#             user = use_case.execute(user_dto)
+
+#         # handle exceptions
+#         except (UsernameAlreadyExistsError) as e:
+#             return Response(str(e), status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+#         except permissionsInsuficientException as e:
+#             return Response(str(e), status=status.HTTP_403_FORBIDDEN)
+
+#         # return serialised data
+#         else:
+#             return Response(
+#                 UserSerializer().dump(user).data,
+#                 status=status.HTTP_201_CREATED
+#             )

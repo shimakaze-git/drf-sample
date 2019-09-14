@@ -1,8 +1,5 @@
-# from .use_cases import 
-
-# def build_create_
-# results
+from .use_cases import ShowVoteResultsUsecase
 
 
-def build_show_vote_results_use_case():
-    return None
+def build_show_vote_results_use_case() -> ShowVoteResultsUsecase:
+    return ShowVoteResultsUsecase()

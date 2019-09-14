@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     # 'polls_app.polls',
     'polls_app.polls.apps.PollsConfig',
 
+    # 'polls_app.user',
+    'polls_app.user.apps.PollsConfig',
+
     # 'polls_app.base_site'
     'polls_app.base_site.apps.BaseSiteConfig',
 ]
