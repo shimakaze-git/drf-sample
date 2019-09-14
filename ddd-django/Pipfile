@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+django-debug-toolbar = "*"
+
+[packages]
+django-model-utils = "==3.1.2"
+Django = "==2.0.10"
+django-extensions = "==2.2.1"
+
+[requires]
+python_version = "3.7"
