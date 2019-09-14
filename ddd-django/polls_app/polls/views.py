@@ -4,6 +4,7 @@ from django.template import loader
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
+
 # Create your views here.
 
 from .models import Choice, Question
@@ -23,22 +24,22 @@ from .factories import build_show_vote_results_use_case
 
 class IndexView(generic.ListView):
     model = Question
-    template_name = 'polls/index.html'
-    context_object_name = 'latest_question_list'
+    template_name = "polls/index.html"
+    context_object_name = "latest_question_list"
 
     def get_queryset(self):
         """
         Return the last five published questions (not including those set to be
         published in the future).
         """
-        return Question.objects.filter(
-            pub_date__lte=timezone.now()
-        ).order_by('-pub_date')[:5]
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by(
+            "-pub_date"
+        )[:5]
 
 
 class DetailView(generic.DetailView):
     model = Question
-    template_name = 'polls/detail.html'
+    template_name = "polls/detail.html"
 
     # questionにQuestionの結果が渡される
 
@@ -52,7 +53,7 @@ class DetailView(generic.DetailView):
 
 class ResultsView(generic.DetailView):
     model = Question
-    template_name = 'polls/results.html'
+    template_name = "polls/results.html"
 
     # questionにQuestionの結果が渡される
 
@@ -60,79 +61,69 @@ class ResultsView(generic.DetailView):
 def index(request):
     latest_question_list = Question.objects.filter(
         pub_date__lte=timezone.now()
-    ).order_by('-pub_date')[:5]
+    ).order_by("-pub_date")[:5]
 
-    output = ', '.join([q.question_text for q in latest_question_list])
-    print('output', output)
+    output = ", ".join([q.question_text for q in latest_question_list])
+    print("output", output)
 
-    template = loader.get_template('polls/index.html')
-    print('template', template)
+    template = loader.get_template("polls/index.html")
+    print("template", template)
 
-    context = {
-        'latest_question_list': latest_question_list,
-    }
+    context = {"latest_question_list": latest_question_list}
 
     # return HttpResponse(template.render(context, request))
     # return HttpResponse(output)
-    return render(request, 'polls/index.html', context)
+    return render(request, "polls/index.html", context)
 
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
 
-    print('question', question)
-    print('question_id', question_id)
+    print("question", question)
+    print("question_id", question_id)
 
     # try:
     #     question = Question.objects.get(pk=question_id)
     # except Question.DoesNotExist:
     #     raise Http404("Question does not exist")
 
-    return render(request, 'polls/detail.html', {'question': question})
+    return render(request, "polls/detail.html", {"question": question})
     # return HttpResponse("You're looking at question %s." % question_id)
 
 
 def results(request, question_id):
-    raise Http404
     use_case = build_show_vote_results_use_case()
     try:
         results = use_case.execute(question_id)
     except Exception as e:
-        # print('e', e)
+        print("e", e)
         raise Http404
     else:
-        return render(
-            request,
-            'polls/results.html',
-            results
-        )
+        return render(request, "polls/results.html", results)
 
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
 
     try:
-        print('question.choice_set', question.choice_set)
-        print("request.POST['choice']", request.POST['choice'])
+        print("question.choice_set", question.choice_set)
+        print("request.POST['choice']", request.POST["choice"])
         # print(dir(question))
 
-        selected_choice = question.choice_set.get(
-            pk=request.POST['choice']
-        )
-        print('selected_choice', selected_choice)
+        selected_choice = question.choice_set.get(pk=request.POST["choice"])
+        print("selected_choice", selected_choice)
     except (KeyError, Choice.DoesNotExist):
         # request.POST['choice'] は KeyError を送出
-        return render(request, 'polls/detail.html', {
-            'question': question,
-            'error_message': "You didn't select a choice.",
-        })
+        return render(
+            request,
+            "polls/detail.html",
+            {"question": question, "error_message": "You didn't select a choice."},
+        )
     else:
         # selected_choice.votes += 1
         # selected_choice.save()
 
-        return HttpResponseRedirect(
-            reverse('polls:results', args=(question.id,))
-        )
+        return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
 
 
 # class CreateUserView(APIView):
