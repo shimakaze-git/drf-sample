@@ -3,6 +3,8 @@ import inject
 from django.urls import path
 
 from . import views
+from .views import api
+
 from polls_app.polls.repositories import QuestionRepository, ChoiceRepository
 
 from polls_app.polls.repositories.questions import QuestionDBRepository
@@ -30,6 +32,22 @@ urlpatterns = [
 
     # path('questions', views.IndexViewQuestion.as_view(), name='questions')
     # path('questions/', views.IndexViewQuestion.as_view())
+]
+
+
+urlpatterns += [
+    path(
+        'api/', api.json_index, name='index_api'
+    ),
+    path(
+        'api/<int:question_id>/', api.json_detail, name='detail_api'
+    ),
+    path(
+        'api/<int:question_id>/results/', api.json_results, name='results_api'
+    ),
+    path(
+        'api/<int:question_id>/vote/', views.json_vote, name='vote_api'
+    ),
 ]
 
 

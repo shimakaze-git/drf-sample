@@ -1,27 +1,101 @@
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http.response import JsonResponse
+from django.template import loader
+from django.urls import reverse
 
-# from rest_framework.views import APIView
+from polls_app.polls.factories import (
+    build_show_vote_results_use_case,
+    build_show_vote_detail_use_case,
+    build_show_vote_index_use_case,
 
-# class CreateUserView(APIView):
-#     def post(self, request):
-#         # validate input
-#         user_dto, errors = CreateUserSerializer().load(request.data)
-#         if errors:
-#             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+    build_vote_use_case,
+)
+from polls_app.polls.exceptions import (
+    ChoiceDoesNotExist, QuestionDoesNotExist
+)
 
-#         # call usecase
-#         use_case = build_create_user_use_case()
-#         try:
-#             user = use_case.execute(user_dto)
 
-#         # handle exceptions
-#         except (UsernameAlreadyExistsError) as e:
-#             return Response(str(e), status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-#         except permissionsInsuficientException as e:
-#             return Response(str(e), status=status.HTTP_403_FORBIDDEN)
+def json_index(request):
+    use_case = build_show_vote_index_use_case()
 
-#         # return serialised data
-#         else:
-#             return Response(
-#                 UserSerializer().dump(user).data,
-#                 status=status.HTTP_201_CREATED
-#             )
+    context = use_case.execute()
+
+    return JsonResponse(
+        data={
+            'context': dir(context)
+        },
+        status=200
+    )
+
+
+def json_detail(request, question_id):
+    assert isinstance(question_id, int)
+
+    use_case = build_show_vote_detail_use_case()
+    try:
+        question = use_case.execute(question_id)
+    except QuestionDoesNotExist as e:
+        error_message = e.args[0]
+        raise Http404(error_message)
+
+    return JsonResponse(
+        data={
+            "question": str(question)
+        },
+        status=200
+    )
+
+
+def json_results(request, question_id):
+    assert isinstance(question_id, int)
+
+    use_case = build_show_vote_results_use_case()
+    try:
+        results = use_case.execute(question_id)
+    except QuestionDoesNotExist as e:
+        error_message = e.args[0]
+        raise Http404(error_message)
+    else:
+        return JsonResponse(
+            data={
+                "question": str(results)
+            },
+            status=200
+        )
+
+
+def json_vote(request, question_id):
+    assert isinstance(question_id, int)
+
+    use_case = build_vote_use_case()
+    try:
+        choice_id = int(request.POST["choice"])
+        use_case.execute(question_id, choice_id)
+    except (KeyError, ChoiceDoesNotExist) as e:
+
+        question = e.args[0]
+        error_message = e.args[1]
+
+        return JsonResponse(
+            data={
+                "question_id": str(question),
+                "error_message": error_message
+            },
+            status=200
+        )
+
+    except QuestionDoesNotExist as e:
+        error_message = e.args[0]
+        raise Http404(error_message)
+    else:
+        return HttpResponseRedirect(
+            reverse("polls:results", args=(question_id,))
+        )
+        return JsonResponse(
+            data={
+                "question_id": str(question_id),
+            },
+            status=200
+        )
+
