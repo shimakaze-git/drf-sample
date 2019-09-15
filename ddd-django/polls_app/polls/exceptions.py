@@ -8,3 +8,7 @@ class ChoiceDoesNotExist(DoesNotExist):
 
 class QuestionDoesNotExist(DoesNotExist):
     """ QuestionDoesNotExist. """
+
+
+class VoteCountException(Exception):
+    """ VoteCountException. """
