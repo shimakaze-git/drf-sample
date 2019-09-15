@@ -62,7 +62,7 @@ class QuestionDBRepository(QuestionRepository):
         ).order_by("-pub_date")[:count]
 
     def get_selected_choice(self, question: Question, choice_id: int):
-        assert isinstance(question, int)
+        assert isinstance(question, Question)
         assert isinstance(choice_id, int)
 
         selected_choice = question.choice_set.filter(
@@ -93,6 +93,7 @@ class QuestionDBRepository(QuestionRepository):
         )
 
         if not selected_choice:
-            selected_choice.votes += vote_count
-            selected_choice.save()
+            pass
+            # selected_choice.votes += vote_count
+            # selected_choice.save()
         return question, selected_choice

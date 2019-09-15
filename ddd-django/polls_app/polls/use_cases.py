@@ -5,6 +5,7 @@ from .services import (
 
     VoteService,
 )
+from .exceptions import ChoiceDoesNotExist, QuestionDoesNotExist
 
 
 class ShowVoteIndexUsecase:
@@ -31,10 +32,18 @@ class ShowVoteDetailUsecase:
 
     def execute(self, question_id: int) -> dict:
         # 投票内容を取り出す
-        question = self._question_repo.get_question(
+        question = self.get_question(question_id)
+
+        if not question:
+            error_message = "Question does not exist."
+            raise QuestionDoesNotExist(error_message)
+
+        return question
+
+    def get_question(self, question_id: int):
+        return self._question_repo.get_question(
             question_id
         )
-        return question
 
 
 class ShowVoteResultsUsecase:
@@ -46,6 +55,10 @@ class ShowVoteResultsUsecase:
         question = self._question_repo.get_question(
             question_id
         )
+
+        if not question:
+            error_message = "Question does not exist."
+            raise QuestionDoesNotExist(error_message)
 
         # 集計する
         max, min, avg = self.aggregate()
@@ -62,6 +75,7 @@ class ShowVoteResultsUsecase:
         service = ChoiceAggregateService()
         aggregates = service.show_max_min_avg_aggregate()
 
+        # 整形処理
         max = aggregates[0]
         min = aggregates[1]
         avg = aggregates[2]
@@ -74,31 +88,28 @@ class VoteUsecase:
 
     def __init__(self):
         self._vote_service = VoteService()
-        self._question_repo = QuestionRepository(QuestionDBRepository())
 
     def execute(self, question_id: int, choice_id: int) -> dict:
-        self._vote_service.add_vote(question_id, choice_id)
+        question, selected_choice = self.add_vote(
+            question_id, choice_id
+        )
 
-    # question = get_object_or_404(Question, pk=question_id)
-    # try:
-    #     print("question.choice_set", question.choice_set)
-    #     print("request.POST['choice']", request.POST["choice"])
-    #     # print(dir(question))
+        selected_choice = None
 
-    #     selected_choice = question.choice_set.get(pk=request.POST["choice"])
-    #     print("selected_choice", selected_choice)
-    # except (KeyError, Choice.DoesNotExist):
-    #     # request.POST['choice'] は KeyError を送出
-    #     return render(
-    #         request,
-    #         "polls/detail.html",
-    #         {"question": question, "error_message": "You didn't select a choice."},
-    #     )
-    # else:
-    #     # selected_choice.votes += 1
-    #     # selected_choice.save()
+        if not question:
+            error_message = "Question does not exist."
+            raise QuestionDoesNotExist(error_message)
 
-    #     return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+        if not selected_choice:
+            error_message = "You didn't select a choice."
+            raise ChoiceDoesNotExist(question, error_message)
+
+        return question
+
+    def add_vote(self, question_id: int, choice_id: int):
+        return self._vote_service.add_vote(
+            question_id, choice_id
+        )
 
 
 class CreateUserUsecase:
