@@ -36,6 +36,10 @@ URL_ROOT = "/"
 # Application definition
 
 INSTALLED_APPS = [
+    'django_extensions',
+]
+
+INSTALLED_APPS += [
     'django.contrib.admin',  # 管理（admin）サイト
     'django.contrib.auth',  # 認証システム
     'django.contrib.contenttypes',  # コンテンツタイプフレームワーク
@@ -44,19 +48,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',  # 静的ファイルの管理フレームワーク
     'django.contrib.sites',  # 1つのウェブサイトに1つのSiteデータが割り当て
 
-    # 'polls_app.polls',
-    'polls_app.polls.apps.PollsConfig',
-
     # 'polls_app.user',
     # 'polls_app.user.apps.PollsConfig',
 
     # 'polls_app.base_site'
     'polls_app.base_site.apps.BaseSiteConfig',
+
+    # 'polls_app.polls',
+    'polls_app.polls.apps.PollsConfig',
 ]
 
-INSTALLED_APPS += [
-    'django_extensions',
-]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

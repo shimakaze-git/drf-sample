@@ -1,6 +1,13 @@
+import inject
+
 from django.urls import path
 
 from . import views
+from polls_app.polls.repositories import QuestionRepository, ChoiceRepository
+
+from polls_app.polls.repositories.questions import QuestionDBRepository
+from polls_app.polls.repositories.choices import ChoiceDBRepository
+
 
 app_name = 'polls'
 urlpatterns = [
@@ -24,3 +31,11 @@ urlpatterns = [
     # path('questions', views.IndexViewQuestion.as_view(), name='questions')
     # path('questions/', views.IndexViewQuestion.as_view())
 ]
+
+
+def inject_config(binder):
+    binder.bind(QuestionRepository, QuestionDBRepository())
+    binder.bind(ChoiceRepository, ChoiceDBRepository())
+
+
+inject.configure(inject_config)

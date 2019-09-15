@@ -1,13 +1,14 @@
+import inject
+
 from django.utils import timezone
 
-from .repositories.choices import ChoiceRepository, ChoiceDBRepository
-# from .repositories.questions import QuestionRepository, QuestionDBRepository
-from .repositories.questions import QuestionDBRepository
+from .repositories import QuestionRepository, ChoiceRepository
 
 
 class ChoiceAggregateService:
-    def __init__(self):
-        self._choice_repo = ChoiceRepository(ChoiceDBRepository())
+    @inject.params(choice_repo=ChoiceRepository)
+    def __init__(self, choice_repo: ChoiceRepository):
+        self._choice_repo = choice_repo
 
     def show_max_min_avg_aggregate(self):
         """ max, min, avgを集計する. """
@@ -26,8 +27,9 @@ GET_COUNT = 5
 
 
 class LatestQuestionService:
-    def __init__(self):
-        self._question_repo = QuestionDBRepository()
+    @inject.params(question_repo=QuestionRepository)
+    def __init__(self, question_repo: QuestionRepository):
+        self._question_repo = question_repo
 
     def get_latest_questions(self, pub_date_flag=True) -> tuple:
         """
@@ -60,11 +62,9 @@ class LatestQuestionService:
 
 
 class VoteService:
-    def __init__(self):
-        # self._question_repo = QuestionRepository(
-        #     QuestionDBRepository()
-        # )
-        self._question_repo = QuestionDBRepository()
+    @inject.params(question_repo=QuestionRepository)
+    def __init__(self, question_repo: QuestionRepository):
+        self._question_repo = question_repo
 
     def execute(self, question_id: int, choice_id: int):
         return self.add_vote(question_id, choice_id)

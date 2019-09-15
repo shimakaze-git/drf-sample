@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib import admin
+# from django.contrib import admin
 
 from model_utils.models import TimeStampedModel
 import datetime

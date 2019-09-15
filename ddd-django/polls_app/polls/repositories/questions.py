@@ -1,35 +1,15 @@
 from datetime import datetime
 
-from polls_app.polls.repositories import PollsRepository
+from polls_app.polls.repositories import QuestionRepository
 
 from polls_app.polls.models import Question
 
 
-class QuestionRepository(PollsRepository):
-    def __init__(self, db_repo):
-        self.__db_repo = db_repo
+class QuestionDBRepository(QuestionRepository):
+    def __init__(self, question_orm=Question):
+        self.question_orm = question_orm
 
     def get_question(self, question_id: int):
-        return self.__db_repo.filter_by_question_id(question_id)
-
-    def get_all(self):
-        return self.__db_repo.get_all()
-
-    def get_selected_choice(self, choice_id: int):
-        return self.__db_repo.get_selected_choice(choice_id)
-
-    def create_vote(self, choice_id: int, vote_count=1):
-        return self.__db_repo.add_vote(
-            choice_id,
-            vote_count
-        )
-
-
-class QuestionDBRepository(QuestionRepository):
-    def __init__(self):
-        self.question_orm = Question
-
-    def filter_by_question_id(self, question_id: int):
         """
         Questionオブジェクトのquestion_idを元にフィルタリング処理を行う.
 
@@ -84,7 +64,7 @@ class QuestionDBRepository(QuestionRepository):
             vote_count (int, optional): 投票数. Defaults to 1.
         """
         # 投票内容を取り出す
-        question = self.filter_by_question_id(question_id)
+        question = self.get_question(question_id)
 
         # choiceの選択後
         selected_choice = self.get_selected_choice(

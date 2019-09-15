@@ -1,28 +1,13 @@
 from django.db.models import Avg, Max, Min
 
-from polls_app.polls.repositories import PollsRepository
-
+from polls_app.polls.repositories import ChoiceRepository
 from polls_app.polls.models import Choice
-
-
-class ChoiceRepository(PollsRepository):
-    def __init__(self, db_repo):
-        self.__db_repo = db_repo
-
-    def get_vote_aggregates(self):
-        return self.__db_repo.get_vote_aggregates()
-
-    def get_choice(self, choice_id: int):
-        return self.__db_repo.filter_by_choice_id(choice_id)
-
-    def get_all(self):
-        return self.__db_repo.get_all()
 
 
 class ChoiceDBRepository(ChoiceRepository):
 
-    def __init__(self):
-        self.choice_orm = Choice
+    def __init__(self, choice_orm=Choice):
+        self.choice_orm = choice_orm
 
     def get_vote_aggregates(self):
 
@@ -47,7 +32,7 @@ class ChoiceDBRepository(ChoiceRepository):
             Avg("votes")
         )["votes__avg"]
 
-    def filter_by_choice_id(self, choice_id: int):
+    def get_choice(self, choice_id: int):
         """
         Questionオブジェクトのquestion_idを元にフィルタリング処理を行う.
 

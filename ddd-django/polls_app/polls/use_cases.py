@@ -1,4 +1,6 @@
-from .repositories.questions import QuestionRepository, QuestionDBRepository
+import inject
+
+from .repositories import QuestionRepository
 from .services import (
     ChoiceAggregateService,
     LatestQuestionService,
@@ -27,8 +29,10 @@ class ShowVoteIndexUsecase:
 
 
 class ShowVoteDetailUsecase:
-    def __init__(self):
-        self._question_repo = QuestionRepository(QuestionDBRepository())
+
+    @inject.params(question_repo=QuestionRepository)
+    def __init__(self, question_repo: QuestionRepository):
+        self._question_repo = question_repo
 
     def execute(self, question_id: int) -> dict:
         # 投票内容を取り出す
@@ -47,8 +51,10 @@ class ShowVoteDetailUsecase:
 
 
 class ShowVoteResultsUsecase:
-    def __init__(self):
-        self._question_repo = QuestionRepository(QuestionDBRepository())
+
+    @inject.params(question_repo=QuestionRepository)
+    def __init__(self, question_repo: QuestionRepository):
+        self._question_repo = question_repo
 
     def execute(self, question_id: int) -> dict:
         # 投票内容を取り出す
@@ -93,8 +99,6 @@ class VoteUsecase:
         question, selected_choice = self.add_vote(
             question_id, choice_id
         )
-
-        selected_choice = None
 
         if not question:
             error_message = "Question does not exist."
