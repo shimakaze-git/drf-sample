@@ -48,14 +48,14 @@ INSTALLED_APPS += [
     'django.contrib.staticfiles',  # 静的ファイルの管理フレームワーク
     'django.contrib.sites',  # 1つのウェブサイトに1つのSiteデータが割り当て
 
-    # 'polls_app.user',
-    # 'polls_app.user.apps.PollsConfig',
-
     # 'polls_app.base_site'
     'polls_app.base_site.apps.BaseSiteConfig',
 
     # 'polls_app.polls',
     'polls_app.polls.apps.PollsConfig',
+
+    # 'polls_app.user',
+    'polls_app.user.apps.UserConfig',
 ]
 
 
