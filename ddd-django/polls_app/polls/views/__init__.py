@@ -35,7 +35,6 @@ def detail(request, question_id):
         raise Http404(error_message)
 
     return render(request, "polls/detail.html", {"question": question})
-    # return HttpResponse("You're looking at question %s." % question_id)
 
 
 def results(request, question_id):

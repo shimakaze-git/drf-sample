@@ -5,6 +5,28 @@ from polls_app.polls.repositories import QuestionRepository
 from polls_app.polls.models import Question
 
 
+class QuestionReidsRepository(QuestionRepository):
+
+    def get_question(self, question_id: int):
+        pass
+
+    def get_all(self):
+        pass
+
+    def get_latest_questions(
+        self, timezone_now: datetime, count=5
+    ):
+        pass
+
+    def get_selected_choice(self, question: Question, choice_id: int):
+        pass
+
+    def create_vote(
+        self, question_id: int, choice_id: int, vote_count=1
+    ):
+        pass
+
+
 class QuestionDBRepository(QuestionRepository):
     def __init__(self, question_orm=Question):
         self.question_orm = question_orm
