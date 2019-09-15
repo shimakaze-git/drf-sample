@@ -11,8 +11,8 @@ from .exceptions import ChoiceDoesNotExist, QuestionDoesNotExist
 
 
 class ShowVoteIndexUsecase:
-    def __init__(self):
-        self._latest_question_service = LatestQuestionService()
+    def __init__(self, service=LatestQuestionService):
+        self._latest_question_service = service()
 
     def execute(self) -> dict:
         # 最新の投票内容を取得
@@ -53,8 +53,13 @@ class ShowVoteDetailUsecase:
 class ShowVoteResultsUsecase:
 
     @inject.params(question_repo=QuestionRepository)
-    def __init__(self, question_repo: QuestionRepository):
+    def __init__(
+        self,
+        question_repo: QuestionRepository,
+        service=ChoiceAggregateService
+    ):
         self._question_repo = question_repo
+        self._choice_aggregate_service = service()
 
     def execute(self, question_id: int) -> dict:
         # 投票内容を取り出す
@@ -78,7 +83,7 @@ class ShowVoteResultsUsecase:
         """集計する."""
 
         # ドメインサービスを呼び出す
-        service = ChoiceAggregateService()
+        service = self._choice_aggregate_service
         aggregates = service.show_max_min_avg_aggregate()
 
         # 整形処理

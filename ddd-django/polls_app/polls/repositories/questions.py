@@ -68,8 +68,8 @@ class QuestionDBRepository(QuestionRepository):
         assert isinstance(choice_id, int)
 
         selected_choice = question.choice_set.filter(
-            pk=choice_id
-        )
+            pk=choice_id,
+        ).first()
         return selected_choice
 
     def create_vote(
@@ -94,8 +94,7 @@ class QuestionDBRepository(QuestionRepository):
             choice_id
         )
 
-        if not selected_choice:
-            pass
-            # selected_choice.votes += vote_count
-            # selected_choice.save()
+        if selected_choice:
+            selected_choice.votes += vote_count
+            selected_choice.save()
         return question, selected_choice
